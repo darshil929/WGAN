@@ -20,3 +20,28 @@ FEATURES_DISC = 64
 FEATURES_GEN = 64
 CRIRIC_ITERATIONS = 5
 WEIGHT_CLIP = 0.01
+
+transforms = transforms.Compose(
+    [
+        transforms.Resize(IMAGE_SIZE),
+        transforms.ToTensor(),
+        transforms.Normalize(
+            [0.5 for _ in range(CHANNELS_IMG)], [0.5 for _ in range(CHANNELS_IMG)]
+        ),
+    ]
+)
+
+dataset = datasets.MNIST(root="dataset/", train=True, transform=transforms, download=True)
+loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
+gen = Generator(Z_DIM, CHANNELS_IMG, FEATURES_GEN).to(device)
+critic = Discriminator(CHANNELS_IMG, FEATURES_DISC).to(device)
+initialize_weights(gen)
+initialize_weights(critic)
+
+opt_gen = optim.RMSprop(gen.parameters(), lr=LEARNING_RATE)
+opt_critic = optim.RMSprop(critic.parameters(), lr=LEARNING_RATE)
+
+fixed_noise = torch.randn(32, Z_DIM, 1, 1).to(device)
+writer_real = SummaryWriter(f"logs/real")
+writer_fake = SummaryWriter(f"logs/fake")
+step = 0
