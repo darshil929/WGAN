@@ -27,7 +27,7 @@ class Discriminator(nn.Module):
                 padding,
                 bias=False
             ), 
-            nn.BatchNorm2d(out_channels),
+            nn.InstanceNorm2d(out_channels, affine=True), # LayerNorm <-> InstanceNorm
             nn.LeakyReLU(0.2)
         )
         
